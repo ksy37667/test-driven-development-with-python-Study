@@ -11,8 +11,8 @@ from lists.views import home_page
 
 class HomePageTest(TestCase):
     def remove_csrf(self, origin):
-        csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
-        return re.sub(csrf_regex, '', origin)
+        csrf_regex = r'&lt;input[^&gt;]+csrfmiddlewaretoken[^&gt;]+&gt;'
+        return re.sub(csrf_regex, '', html_code)
 
     def test_root_url_resolves_to_home_page_view(self):
         found = resolve('/')
@@ -27,10 +27,6 @@ class HomePageTest(TestCase):
         response = home_page(request)
 
         self.assertIn('신규 작업 아이템', response.content.decode())
-        expected_html = self.remove_csrf(render_to_string(
-            'home.html',
-            {'new_item_text': '신규 작업 아이템'},
-            request=request
-        ))
-        response_decode = self.remove_csrf(response.content.decode())
-        self.assertEqual(response_decode, expected_html)
+        expected_html = render_to_string('home.html', request=request)
+
+        self.assertEqual(remove_csrf(response_decode), remove_csrf(expected_html))
