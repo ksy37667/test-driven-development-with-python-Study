@@ -30,3 +30,25 @@ class HomePageTest(TestCase):
         expected_html = render_to_string('home.html', request=request)
 
         self.assertEqual(remove_csrf(response_decode), remove_csrf(expected_html))
+
+
+
+
+class ItemModelTest(TestCase):
+
+    def test_saving_and_retrieving_items(self):
+        first_item = Item()
+        first_item.text = '첫 번째 아이템'
+        first_item.save()
+
+        second_item = Item()
+        second_item.text = '두 번째 아이템'
+        second_item.save()
+
+        saved_item = Item.objects.all()
+        self.assertEqual(saved_items.count(), 2)
+        
+        first_save_item = save_items[0]
+        second_save_item = save_items[1]
+        self.assertEqual(first_save_item.text, '첫 번째 아이템')
+        self.assertEqual(second_saved_item.text, '두 번째 아이템')
