@@ -2,17 +2,19 @@ from django.template.loader import render_to_string
 from django.urls import resolve
 from django.test import TestCase
 from django.http import HttpRequest
+
 import re
 
+from lists.models import Item
 from lists.views import home_page
 
 # Create your tests here.
 
-
 class HomePageTest(TestCase):
+
     def remove_csrf(self, origin):
-        csrf_regex = r'&lt;input[^&gt;]+csrfmiddlewaretoken[^&gt;]+&gt;'
-        return re.sub(csrf_regex, '', html_code)
+        csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
+        return re.sub(csrf_regex, '', origin)
 
     def test_root_url_resolves_to_home_page_view(self):
         found = resolve('/')
@@ -27,15 +29,21 @@ class HomePageTest(TestCase):
         response = home_page(request)
 
         self.assertIn('신규 작업 아이템', response.content.decode())
-        expected_html = render_to_string('home.html', request=request)
+        expected_html = self.remove_csrf(render_to_string(
+            'home.html',
+            {'new_item_text': '신규 작업 아이템'},
+            request=request,
+        ))
 
-        self.assertEqual(remove_csrf(response_decode), remove_csrf(expected_html))
+        self.assertEqual(self.remove_csrf(response.content.decode()), self.remove_csrf(expected_html))
 
 
 
 
 class ItemModelTest(TestCase):
-
+    '''
+    아이템 Model 테스트
+    '''
     def test_saving_and_retrieving_items(self):
         first_item = Item()
         first_item.text = '첫 번째 아이템'
@@ -45,10 +53,10 @@ class ItemModelTest(TestCase):
         second_item.text = '두 번째 아이템'
         second_item.save()
 
-        saved_item = Item.objects.all()
+        saved_items = Item.objects.all()
         self.assertEqual(saved_items.count(), 2)
         
-        first_save_item = save_items[0]
-        second_save_item = save_items[1]
-        self.assertEqual(first_save_item.text, '첫 번째 아이템')
+        first_saved_item = saved_items[0]
+        second_saved_item = saved_items[1]
+        self.assertEqual(first_saved_item.text, '첫 번째 아이템')
         self.assertEqual(second_saved_item.text, '두 번째 아이템')
