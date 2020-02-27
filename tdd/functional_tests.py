@@ -33,6 +33,9 @@ class NewvisitorTest(unittest.TestCase):
             '작업 아이템 입력'
         )
 
+        import time
+        time.sleep(2)
+
         # "공작깃털 사기"라고 텍스트 상자에 입력한다
         # (취미는 날치 잡이용 그물을 만드는 것)
         inputbox.send_keys('공작깃털 사기')
