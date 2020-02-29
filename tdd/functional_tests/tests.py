@@ -1,7 +1,7 @@
 from django.test import LiveServerTestCase
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
-
+import time
 class NewvisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -33,18 +33,16 @@ class NewvisitorTest(LiveServerTestCase):
             '작업 아이템 입력'
         )
 
-        import time
         time.sleep(2)
 
         # "공작깃털 사기"라고 텍스트 상자에 입력한다
         # (취미는 날치 잡이용 그물을 만드는 것)
         inputbox.send_keys('공작깃털 사기')
         inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
         edith_list_url = self.browser.current_url
         self.assertRegex(edith_list_url, '/lists/.+')
 
-        import time
-        time.sleep(2)
 
         self.check_for_row_in_list_table('1: 공작깃털 사기')
 
@@ -60,13 +58,11 @@ class NewvisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('공작깃털을 이용해서 그물 만들기')
         inputbox.send_keys(Keys.ENTER)
-
-        import time
-        time.sleep(2)
+        time.sleep(1)
 
         # 페이지는 다시 갱신되고, 두 개 아이템이 목록에 보인다
-        self.check_for_row_in_list_table('1: 공작깃털 사기')
         self.check_for_row_in_list_table('2: 공작깃털을 이용해서 그물 만들기')
+        self.check_for_row_in_list_table('1: 공작깃털 사기')
 
         # 새로운 사용자인 프란시스가 사이트에 접속한다
 
@@ -78,20 +74,24 @@ class NewvisitorTest(LiveServerTestCase):
         # 프란시스가 홈페이지에 접속한다
         # 에디스 리스트는 보이지 않는다
         self.browser.get(self.live_server_url)
+        time.sleep(1)
+
         page_next = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('공작깃털 사기', page_text)
         self.assertNotIn('그물 만들기', page_text)
-
+        
         # 프란시스가 새로운 작업 아이템을 입력하기 시작한다
         # 그는 에디스보다 재미가 없다
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send('우유 사기')
         inputbox.send(Keys.ENTER)
+        time.sleep(1)
 
         # 프란시스가 전용 url을 취득한다
         francis_list_url = self.browser.current_url
         self.assertRegex(francis_list_url, '/lists/.+')
         self.assertNotEqual(francis_list_url, edith_list_url)
+        time.sleep(1)
 
         # 에디스가 입력한 흔적이 없다는 것을 다시 확인한다
         page_text = self.browser.find_element_by_tag_name('body').text
